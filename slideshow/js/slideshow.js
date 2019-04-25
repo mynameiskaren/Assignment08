@@ -1,10 +1,18 @@
 /*eslint-env browser*/
+var $ = function (id) {
+    "use strict";
+    return window.document.getElementById(id);
+};
+var theSpeed;
 
 // REWRITTEN TO TAKE ADVANTAGE OF CLOSURES
 var createSlideshow = function () {
     "use strict";
     // PRIVATE VARIABLES AND FUNCTIONS
     var timer, play = true, nodes, img, stopSlideShow, displayNextImage, setPlayText;
+    
+    //Step 3 - Change up the application so that you now have a private variable called speed and the default speed of 2000 should be set for it.
+    var speed = 2000;
     
     nodes = { image: null, caption: null };
     img = { cache: [], counter: 0 };
@@ -41,12 +49,26 @@ var createSlideshow = function () {
             }
             return this;
         },
+        
+        //Step 4 - Create 2 new public methods within your createSlideshow() method. One should set the speed variable and the other should get the speed variable. You’ll need to figure out what to do within these methods to get the application to work correctly. 
+        setSpeed: function () {
+			stopSlideShow();	
+			speed = theSpeed;
+			return this;
+		},
+		getSpeed: function () {
+			return speed;
+		},
+        
         startSlideShow: function () {
             if (arguments.length === 2) {
                 nodes.image = arguments[0];
                 nodes.caption = arguments[1];
             }
-            timer = setInterval(displayNextImage, 2000);
+            
+            //Step 5 - The second parameter of the setInterval() method will now be set by the speed variable.
+            timer = setInterval(displayNextImage, this.getSpeed());
+            
             return this;
         },
         createToggleHandler: function () {
@@ -68,13 +90,23 @@ var createSlideshow = function () {
     };
 };
 
-var $ = function (id) {
-    "use strict";
-    return window.document.getElementById(id);
-};
+
 
 // CREATE THE SLIDESHOW OBJECT
 var slideshow = createSlideshow();
+
+function validate(number) {
+    "use strict";
+    if (isNaN(number) || number === null) {
+        window.alert("Not a number! Enter a number please.");
+		return false;
+    } else if (number < 0) {
+		window.alert("Enter a positive number.");
+		return false;
+	} else {
+		return true;
+	}
+}
 
 window.addEventListener("load", function () {
     "use strict";
@@ -89,4 +121,13 @@ window.addEventListener("load", function () {
     slideshow.loadImages(slides).startSlideShow($("image"), $("caption"));
     // PAUSE THE SLIDESHOW
     $("play_pause").onclick = slideshow.createToggleHandler();
+	
+    // Step 2 - When the user clicks the button, a prompt should appear that has the current speed shown and allows the user to change it to a different speed.
+    $("speed").addEventListener("click", function () {
+		do {
+			theSpeed = parseInt(window.prompt("Current slideshow speed: " + slideshow.getSpeed() + "\nEnter new slideshow speed."), 10);
+		} while (validate(theSpeed) === false);
+		slideshow.setSpeed(theSpeed).startSlideShow();
+	});
+	
 });
